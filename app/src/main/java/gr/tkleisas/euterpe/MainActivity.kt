@@ -115,6 +115,8 @@ private fun EuterpeScreen(viewModel: EuterpeViewModel) {
                 onSelectScale = viewModel::selectScale,
                 onSelectRoot = viewModel::selectRoot,
                 onSelectRhythm = viewModel::selectRhythm,
+                onSelectLayer = viewModel::selectLayer,
+                onToggleLayerMute = viewModel::toggleLayerMute,
                 onToggleTransport = viewModel::toggleTransport,
                 onAdjustBpm = viewModel::adjustBpm,
                 onMutateIdea = viewModel::mutateIdea,

@@ -1,9 +1,11 @@
 package gr.tkleisas.euterpe.ui.components
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -49,6 +51,7 @@ import gr.tkleisas.euterpe.ui.theme.EuterpeColors
 import gr.tkleisas.euterpe.viewmodel.EuterpeUiState
 import kotlin.math.roundToInt
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TopIdeaBar(
     state: EuterpeUiState,
@@ -57,6 +60,8 @@ fun TopIdeaBar(
     onSelectScale: (ScaleSpec) -> Unit,
     onSelectRoot: (Int) -> Unit,
     onSelectRhythm: (RhythmSpec) -> Unit,
+    onSelectLayer: (Int) -> Unit,
+    onToggleLayerMute: (Int) -> Unit,
     onToggleTransport: () -> Unit,
     onAdjustBpm: (Float) -> Unit,
     onMutateIdea: () -> Unit,
@@ -124,6 +129,55 @@ fun TopIdeaBar(
             },
             onSelect = onSelectRhythm
         )
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        // 8 Selectable Layer Slots (Tap = select layer & its sound; Long-press = mute/unmute)
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(3.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            for (i in 0 until 8) {
+                val selected = state.selectedLayer == i
+                val recorded = (state.recordedLayerMask and (1 shl i)) != 0
+                val muted = (state.mutedLayerMask and (1 shl i)) != 0
+                val bg = when {
+                    selected -> accent.copy(alpha = 0.28f)
+                    recorded && !muted -> Color(0xFF1F362B)
+                    else -> EuterpeColors.SurfaceElevated
+                }
+                val borderCol = when {
+                    selected -> accent
+                    recorded && !muted -> Color(0xFF4CD97B)
+                    muted -> EuterpeColors.TextMuted.copy(alpha = 0.4f)
+                    else -> EuterpeColors.BorderSubtle
+                }
+                Box(
+                    modifier = Modifier
+                        .size(width = 22.dp, height = 28.dp)
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(bg)
+                        .border(if (selected) 1.5.dp else 1.dp, borderCol, RoundedCornerShape(6.dp))
+                        .combinedClickable(
+                            onClick = { onSelectLayer(i) },
+                            onLongClick = { onToggleLayerMute(i) }
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "${i + 1}",
+                        color = when {
+                            muted -> EuterpeColors.TextMuted.copy(alpha = 0.45f)
+                            selected -> accent
+                            recorded -> Color(0xFF4CD97B)
+                            else -> EuterpeColors.TextMuted
+                        },
+                        fontSize = 11.sp,
+                        fontWeight = if (selected || recorded) FontWeight.Bold else FontWeight.Medium
+                    )
+                }
+            }
+        }
 
         Spacer(modifier = Modifier.weight(1f))
 

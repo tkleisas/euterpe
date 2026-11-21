@@ -110,16 +110,21 @@ class EuterpeViewModel : ViewModel() {
                     val count = if (_uiState.value.isPlaying) engine.stepCount().coerceAtLeast(1) else _uiState.value.stepCount
                     val lState = engine.looperState()
                     val lLayers = engine.looperLayerCount()
+                    val recMask = engine.looperRecordedMask()
+                    val muteMask = engine.looperMutedMask()
                     val cur = _uiState.value
                     if (step != cur.currentStep || count != cur.stepCount ||
-                        lState != cur.looperState || lLayers != cur.looperLayers
+                        lState != cur.looperState || lLayers != cur.looperLayers ||
+                        recMask != cur.recordedLayerMask || muteMask != cur.mutedLayerMask
                     ) {
                         _uiState.update {
                             it.copy(
                                 currentStep = step,
                                 stepCount = count,
                                 looperState = lState,
-                                looperLayers = lLayers
+                                looperLayers = lLayers,
+                                recordedLayerMask = recMask,
+                                mutedLayerMask = muteMask
                             )
                         }
                     }
@@ -542,6 +547,58 @@ class EuterpeViewModel : ViewModel() {
 
     fun noteOff(pointerId: Int) {
         if (engineInitialized) engine.noteOff(pointerId)
+    }
+
+    private fun saveCurrentToActiveLayer() {
+        val s = _uiState.value
+        val idx = s.selectedLayer.coerceIn(0, 7)
+        layerConfigs[idx] = LayerConfig(
+            instrumentIndex = s.instrumentIndex,
+            synthTone = s.synthTone,
+            synthDecay = s.synthDecay,
+            synthDrive = s.synthDrive,
+            insertDistOn = s.insertDistOn,
+            insertDistAmt = s.insertDistAmt,
+            insertChorusOn = s.insertChorusOn,
+            insertChorusAmt = s.insertChorusAmt,
+            insertDelayOn = s.insertDelayOn,
+            insertDelayAmt = s.insertDelayAmt,
+        )
+    }
+
+    fun selectLayer(layerIndex: Int) {
+        val idx = layerIndex.coerceIn(0, 7)
+        saveCurrentToActiveLayer()
+        val cfg = layerConfigs[idx]
+        _uiState.update {
+            it.copy(
+                selectedLayer = idx,
+                instrumentIndex = cfg.instrumentIndex,
+                synthTone = cfg.synthTone,
+                synthDecay = cfg.synthDecay,
+                synthDrive = cfg.synthDrive,
+                insertDistOn = cfg.insertDistOn,
+                insertDistAmt = cfg.insertDistAmt,
+                insertChorusOn = cfg.insertChorusOn,
+                insertChorusAmt = cfg.insertChorusAmt,
+                insertDelayOn = cfg.insertDelayOn,
+                insertDelayAmt = cfg.insertDelayAmt,
+            )
+        }
+        if (engineInitialized) {
+            engine.looperSelectLayer(idx)
+            engine.setInstrument(cfg.instrumentIndex)
+            engine.setSynthTone(cfg.synthTone)
+            engine.setSynthDecay(cfg.synthDecay)
+            engine.setSynthDrive(cfg.synthDrive)
+            engine.setInsertFx(0, cfg.insertDistOn, cfg.insertDistAmt)
+            engine.setInsertFx(1, cfg.insertChorusOn, cfg.insertChorusAmt)
+            engine.setInsertFx(2, cfg.insertDelayOn, cfg.insertDelayAmt)
+        }
+    }
+
+    fun toggleLayerMute(layerIndex: Int) {
+        if (engineInitialized) engine.looperToggleMute(layerIndex.coerceIn(0, 7))
     }
 
     fun looperToggleRec() {
