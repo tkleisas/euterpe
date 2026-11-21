@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Moon behind: full dark disc (3/4 dark indigo-slate) -->
+    <path
+        android:fillColor="#1C2541"
+        android:strokeColor="#2E3B63"
+        android:strokeWidth="1.2"
+        android:pathData="M54,23 A31,31 0 1,0 54,85 A31,31 0 1,0 54,23 Z" />
+
+    <!-- Moon 1/4 lit waxing crescent (astronomical terminator: ~24% lit, ~76% dark) -->
+    <path
+        android:fillColor="#F4E3B2"
+        android:pathData="M54,23 A31,31 0 0,1 54,85 A16,31 0 0,0 54,23 Z" />
+
+    <!-- Subtle small orbital dot (second subtle Lua moon nod) -->
+    <path
+        android:fillColor="#E8B959"
+        android:pathData="M79,26 A3.2,3.2 0 1,0 79,32.4 A3.2,3.2 0 1,0 79,26 Z" />
+
+    <!-- Lyre crossbar (top) -->
+    <path
+        android:strokeColor="#E8B959"
+        android:strokeWidth="3.2"
+        android:strokeLineCap="round"
+        android:pathData="M34,37 L74,37" />
+
+    <!-- Lyre curved arms (left and right) -->
+    <path
+        android:strokeColor="#E8B959"
+        android:strokeWidth="3.4"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="#00000000"
+        android:pathData="M39,34 C33,44 33,61 42,71 C46,75 50,77 54,77 C58,77 62,75 66,71 C75,61 75,44 69,34" />
+
+    <!-- Lyre soundbox (bottom) -->
+    <path
+        android:fillColor="#C99438"
+        android:strokeColor="#F4D37E"
+        android:strokeWidth="1.4"
+        android:pathData="M42,68 L66,68 C66,75 61,79 54,79 C47,79 42,75 42,68 Z" />
+
+    <!-- Exactly 4 taut vertical strings -->
+    <path
+        android:strokeColor="#FFF5D6"
+        android:strokeWidth="1.4"
+        android:pathData="M46.5,37 L46.5,68" />
+    <path
+        android:strokeColor="#FFF5D6"
+        android:strokeWidth="1.4"
+        android:pathData="M51.5,37 L51.5,68" />
+    <path
+        android:strokeColor="#FFF5D6"
+        android:strokeWidth="1.4"
+        android:pathData="M56.5,37 L56.5,68" />
+    <path
+        android:strokeColor="#FFF5D6"
+        android:strokeWidth="1.4"
+        android:pathData="M61.5,37 L61.5,68" />
+</vector>
