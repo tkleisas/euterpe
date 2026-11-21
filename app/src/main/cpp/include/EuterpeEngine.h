@@ -79,10 +79,14 @@ public:
 
     // Multi-layer phrase looper controls
     void looperToggleRec();
+    void looperSelectLayer(int layerIndex);
+    void looperToggleMute(int layerIndex);
     void looperUndo();
     void looperClear();
     int looperState() const { return static_cast<int>(mLooper.state()); }
     int looperLayerCount() const { return mLooper.layerCount(); }
+    int looperRecordedMask() const { return mLooper.recordedMask(); }
+    int looperMutedMask() const { return mLooper.mutedMask(); }
     float looperProgress() const { return mLooper.progress(); }
 
     // Live UI polling

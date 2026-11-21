@@ -234,6 +234,16 @@ Java_gr_tkleisas_euterpe_audio_EuterpeEngine_nativeLooperToggleRec(JNIEnv*, jobj
 }
 
 JNIEXPORT void JNICALL
+Java_gr_tkleisas_euterpe_audio_EuterpeEngine_nativeLooperSelectLayer(JNIEnv*, jobject, jint layerIndex) {
+    if (gEngine) gEngine->looperSelectLayer(layerIndex);
+}
+
+JNIEXPORT void JNICALL
+Java_gr_tkleisas_euterpe_audio_EuterpeEngine_nativeLooperToggleMute(JNIEnv*, jobject, jint layerIndex) {
+    if (gEngine) gEngine->looperToggleMute(layerIndex);
+}
+
+JNIEXPORT void JNICALL
 Java_gr_tkleisas_euterpe_audio_EuterpeEngine_nativeLooperUndo(JNIEnv*, jobject) {
     if (gEngine) gEngine->looperUndo();
 }
@@ -251,6 +261,16 @@ Java_gr_tkleisas_euterpe_audio_EuterpeEngine_nativeLooperState(JNIEnv*, jobject)
 JNIEXPORT jint JNICALL
 Java_gr_tkleisas_euterpe_audio_EuterpeEngine_nativeLooperLayerCount(JNIEnv*, jobject) {
     return gEngine ? gEngine->looperLayerCount() : 0;
+}
+
+JNIEXPORT jint JNICALL
+Java_gr_tkleisas_euterpe_audio_EuterpeEngine_nativeLooperRecordedMask(JNIEnv*, jobject) {
+    return gEngine ? gEngine->looperRecordedMask() : 0;
+}
+
+JNIEXPORT jint JNICALL
+Java_gr_tkleisas_euterpe_audio_EuterpeEngine_nativeLooperMutedMask(JNIEnv*, jobject) {
+    return gEngine ? gEngine->looperMutedMask() : 0;
 }
 
 JNIEXPORT jfloat JNICALL

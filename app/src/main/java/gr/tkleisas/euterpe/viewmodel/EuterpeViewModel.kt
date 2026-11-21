@@ -20,6 +20,30 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
+data class LayerConfig(
+    val instrumentIndex: Int,
+    val synthTone: Float = 0.62f,
+    val synthDecay: Float = 0.68f,
+    val synthDrive: Float = 0.15f,
+    val insertDistOn: Boolean = false,
+    val insertDistAmt: Float = 0.45f,
+    val insertChorusOn: Boolean = false,
+    val insertChorusAmt: Float = 0.45f,
+    val insertDelayOn: Boolean = false,
+    val insertDelayAmt: Float = 0.40f,
+)
+
+private val defaultLayerConfigs = listOf(
+    LayerConfig(0),  // L1: Oud / Lead
+    LayerConfig(13), // L2: Deep Sub Bass
+    LayerConfig(6),  // L3: Rhodes EP
+    LayerConfig(9),  // L4: Ney / Wind
+    LayerConfig(4),  // L5: Gamelan Saron
+    LayerConfig(12), // L6: Acid TB-303
+    LayerConfig(18), // L7: Polivoks Lead
+    LayerConfig(10), // L8: Harmonic Pad
+)
+
 data class EuterpeUiState(
     val tradition: Tradition = Tradition.ARABIC,
     val modifierBank: Tradition = Tradition.ARABIC,
@@ -63,6 +87,9 @@ data class EuterpeUiState(
     val masterCompAmt: Float = 0.45f,
     val looperState: Int = 0, // 0=Empty, 1=Rec1, 2=Playing, 3=Overdub
     val looperLayers: Int = 0,
+    val selectedLayer: Int = 0, // 0..7 (Layer 1..8)
+    val recordedLayerMask: Int = 0,
+    val mutedLayerMask: Int = 0,
     val showMixerPopup: Boolean = false,
 )
 
@@ -70,6 +97,7 @@ class EuterpeViewModel : ViewModel() {
 
     private val engine = EuterpeEngine()
     private var engineInitialized = false
+    private val layerConfigs = defaultLayerConfigs.toMutableList()
 
     private val _uiState = MutableStateFlow(EuterpeUiState())
     val uiState: StateFlow<EuterpeUiState> = _uiState.asStateFlow()

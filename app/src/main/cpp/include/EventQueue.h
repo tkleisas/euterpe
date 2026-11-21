@@ -37,6 +37,8 @@ struct EngineEvent {
         LooperToggleRec,
         LooperUndo,
         LooperClear,
+        LooperSelectLayer,
+        LooperToggleMute,
         SetInsertFx,
         SetMasterFx,
     };

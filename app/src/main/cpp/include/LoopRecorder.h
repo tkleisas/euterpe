@@ -25,14 +25,16 @@ public:
     void init(double sampleRate);
     void reset();
 
-    // Toggle record / overdub:
-    // - Empty -> RecordingFirst
-    // - RecordingFirst -> Playing (locks loop length + applies crossfade)
-    // - Playing -> Overdubbing (starts next layer if < kMaxLayers)
-    // - Overdubbing -> Playing (commits overdub layer)
+    // Toggle record / overdub into the currently selected layer slot (0..7):
     void toggleRecord();
 
-    // Remove the most recently recorded layer (or clear if only 1 layer).
+    // Select active layer slot (0..7) for recording/overdubbing.
+    void selectLayer(int layerIndex);
+
+    // Mute or unmute a specific layer (0..7).
+    void toggleLayerMute(int layerIndex);
+
+    // Clear the currently selected layer (or last recorded layer).
     void undoLayer();
 
     // Clear all layers and stop playback.
@@ -44,6 +46,8 @@ public:
 
     State state() const { return static_cast<State>(mStateAtomic.load(std::memory_order_relaxed)); }
     int layerCount() const { return mLayerCountAtomic.load(std::memory_order_relaxed); }
+    int recordedMask() const { return mRecordedMaskAtomic.load(std::memory_order_relaxed); }
+    int mutedMask() const { return mMutedMaskAtomic.load(std::memory_order_relaxed); }
     float progress() const { return mProgressAtomic.load(std::memory_order_relaxed); }
 
 private:
@@ -56,13 +60,17 @@ private:
     int mPlayPos = 0;
 
     State mState = State::Empty;
-    int mCommittedLayers = 0;
+    int mSelectedLayer = 0;
     int mRecordingLayer = -1;
+    std::array<bool, kMaxLayers> mLayerHasAudio{};
+    std::array<bool, kMaxLayers> mLayerMuted{};
 
     std::array<std::vector<float>, kMaxLayers> mLayers;
 
     std::atomic<int> mStateAtomic{0};
     std::atomic<int> mLayerCountAtomic{0};
+    std::atomic<int> mRecordedMaskAtomic{0};
+    std::atomic<int> mMutedMaskAtomic{0};
     std::atomic<float> mProgressAtomic{0.0f};
 };
 

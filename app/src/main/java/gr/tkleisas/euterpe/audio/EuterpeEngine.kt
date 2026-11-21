@@ -87,10 +87,14 @@ class EuterpeEngine {
     fun stepCount(): Int = nativeStepCount()
 
     fun looperToggleRec() = nativeLooperToggleRec()
+    fun looperSelectLayer(layerIndex: Int) = nativeLooperSelectLayer(layerIndex)
+    fun looperToggleMute(layerIndex: Int) = nativeLooperToggleMute(layerIndex)
     fun looperUndo() = nativeLooperUndo()
     fun looperClear() = nativeLooperClear()
     fun looperState(): Int = nativeLooperState()
     fun looperLayerCount(): Int = nativeLooperLayerCount()
+    fun looperRecordedMask(): Int = nativeLooperRecordedMask()
+    fun looperMutedMask(): Int = nativeLooperMutedMask()
     fun looperProgress(): Float = nativeLooperProgress()
 
     private external fun nativeInit(scriptsDir: String): Boolean
@@ -132,9 +136,13 @@ class EuterpeEngine {
     private external fun nativeCurrentStep(): Int
     private external fun nativeStepCount(): Int
     private external fun nativeLooperToggleRec()
+    private external fun nativeLooperSelectLayer(layerIndex: Int)
+    private external fun nativeLooperToggleMute(layerIndex: Int)
     private external fun nativeLooperUndo()
     private external fun nativeLooperClear()
     private external fun nativeLooperState(): Int
     private external fun nativeLooperLayerCount(): Int
+    private external fun nativeLooperRecordedMask(): Int
+    private external fun nativeLooperMutedMask(): Int
     private external fun nativeLooperProgress(): Float
 }

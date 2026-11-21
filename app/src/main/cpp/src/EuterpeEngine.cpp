@@ -831,6 +831,20 @@ void EuterpeEngine::looperToggleRec() {
     mQueue.push(ev);
 }
 
+void EuterpeEngine::looperSelectLayer(int layerIndex) {
+    EngineEvent ev;
+    ev.type = EngineEvent::Type::LooperSelectLayer;
+    ev.intParam1 = layerIndex;
+    mQueue.push(ev);
+}
+
+void EuterpeEngine::looperToggleMute(int layerIndex) {
+    EngineEvent ev;
+    ev.type = EngineEvent::Type::LooperToggleMute;
+    ev.intParam1 = layerIndex;
+    mQueue.push(ev);
+}
+
 void EuterpeEngine::looperUndo() {
     EngineEvent ev;
     ev.type = EngineEvent::Type::LooperUndo;
@@ -1019,6 +1033,12 @@ void EuterpeEngine::processEvents(yawn::midi::MidiBuffer& midiOut) {
             break;
         case EngineEvent::Type::LooperClear:
             mLooper.clear();
+            break;
+        case EngineEvent::Type::LooperSelectLayer:
+            mLooper.selectLayer(ev.intParam1);
+            break;
+        case EngineEvent::Type::LooperToggleMute:
+            mLooper.toggleLayerMute(ev.intParam1);
             break;
         case EngineEvent::Type::SetInsertFx: {
             bool on = (ev.intParam2 != 0);
