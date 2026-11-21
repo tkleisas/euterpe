@@ -79,6 +79,7 @@ public:
 
     // Multi-layer phrase looper controls
     void looperToggleRec();
+    void looperTogglePlayAll();
     void looperSelectLayer(int layerIndex);
     void looperToggleMute(int layerIndex);
     void looperUndo();

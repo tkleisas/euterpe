@@ -35,6 +35,7 @@ struct EngineEvent {
         SetSynthDecay,
         SetSynthDrive,
         LooperToggleRec,
+        LooperTogglePlayAll,
         LooperUndo,
         LooperClear,
         LooperSelectLayer,

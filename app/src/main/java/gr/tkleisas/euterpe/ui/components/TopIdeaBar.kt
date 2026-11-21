@@ -159,8 +159,12 @@ fun TopIdeaBar(
                         .background(bg)
                         .border(if (selected) 1.5.dp else 1.dp, borderCol, RoundedCornerShape(6.dp))
                         .combinedClickable(
-                            onClick = { onSelectLayer(i) },
-                            onLongClick = { onToggleLayerMute(i) }
+                            onClick = {
+                                // Tap unselected layer -> select it; tap already-selected recorded layer -> stop/start it!
+                                if (selected && recorded) onToggleLayerMute(i)
+                                else onSelectLayer(i)
+                            },
+                            onLongClick = { if (recorded) onToggleLayerMute(i) }
                         ),
                     contentAlignment = Alignment.Center
                 ) {

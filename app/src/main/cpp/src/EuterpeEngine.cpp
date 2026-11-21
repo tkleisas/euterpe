@@ -831,6 +831,12 @@ void EuterpeEngine::looperToggleRec() {
     mQueue.push(ev);
 }
 
+void EuterpeEngine::looperTogglePlayAll() {
+    EngineEvent ev;
+    ev.type = EngineEvent::Type::LooperTogglePlayAll;
+    mQueue.push(ev);
+}
+
 void EuterpeEngine::looperSelectLayer(int layerIndex) {
     EngineEvent ev;
     ev.type = EngineEvent::Type::LooperSelectLayer;
@@ -1027,6 +1033,9 @@ void EuterpeEngine::processEvents(yawn::midi::MidiBuffer& midiOut) {
             break;
         case EngineEvent::Type::LooperToggleRec:
             mLooper.toggleRecord();
+            break;
+        case EngineEvent::Type::LooperTogglePlayAll:
+            mLooper.togglePlayAll();
             break;
         case EngineEvent::Type::LooperUndo:
             mLooper.undoLayer();

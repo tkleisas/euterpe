@@ -42,6 +42,7 @@ fun CycleAndMixerStrip(
     onToggleIdeaLoop: () -> Unit,
     onToggleBassLoop: () -> Unit,
     onLooperToggleRec: () -> Unit,
+    onLooperTogglePlayAll: () -> Unit,
     onLooperUndo: () -> Unit,
     onLooperClear: () -> Unit,
     onToggleCycleStep: (Int) -> Unit,
@@ -117,6 +118,15 @@ fun CycleAndMixerStrip(
             accent = if (looperActive) recColor else Color(0xFF4CD97B),
             onClick = onLooperToggleRec
         )
+        if (state.looperLayers > 0) {
+            val allStopped = state.looperState == 4
+            SmallPill(
+                text = if (allStopped) "▶ All" else "■ All",
+                selected = !allStopped,
+                accent = if (allStopped) EuterpeColors.TextMuted else Color(0xFF4CD97B),
+                onClick = onLooperTogglePlayAll
+            )
+        }
         if (selectedHasAudio || looperActive) {
             SmallPill(
                 text = "↩",

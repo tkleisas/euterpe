@@ -205,6 +205,24 @@ static void testLoopRecorderLayers() {
     float expected2 = (0.4f + 0.3f) / std::sqrt(2.0f);
     assert(std::fabs(out[2048 * 2] - expected2) < 0.03f);
 
+    // Stop ALL layers without clearing them
+    looper.togglePlayAll();
+    assert(looper.state() == LoopRecorder::State::Stopped);
+    assert(looper.layerCount() == 2);
+    std::fill(out.begin(), out.end(), 0.0f);
+    looper.process(silence.data(), out.data(), 4096, 2);
+    assert(std::fabs(out[2048 * 2]) < 0.0001f);
+
+    // Resume ALL layers + mute individual layer 1
+    looper.togglePlayAll();
+    assert(looper.state() == LoopRecorder::State::Playing);
+    looper.toggleLayerMute(1);
+    assert(looper.mutedMask() == 0b10);
+    std::fill(out.begin(), out.end(), 0.0f);
+    looper.process(silence.data(), out.data(), 4096, 2);
+    assert(std::fabs(out[2048 * 2] - 0.4f) < 0.02f); // Only layer 0 playing!
+    looper.toggleLayerMute(1); // Unmute layer 1
+
     // Undo strictly clears the selected layer (layer 1) -> back to Layer 1 only
     looper.undoLayer();
     assert(looper.layerCount() == 1);

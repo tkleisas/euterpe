@@ -605,6 +605,10 @@ class EuterpeViewModel : ViewModel() {
         if (engineInitialized) engine.looperToggleRec()
     }
 
+    fun looperTogglePlayAll() {
+        if (engineInitialized) engine.looperTogglePlayAll()
+    }
+
     fun looperUndo() {
         if (engineInitialized) engine.looperUndo()
     }

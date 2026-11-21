@@ -76,6 +76,25 @@ void LoopRecorder::toggleLayerMute(int layerIndex) {
     updateAtomics();
 }
 
+void LoopRecorder::togglePlayAll() {
+    if (mState == State::Playing) {
+        mState = State::Stopped;
+        mPlayPos = 0;
+    } else if (mState == State::Stopped) {
+        mPlayPos = 0;
+        mState = State::Playing;
+    } else if (mState == State::Overdubbing) {
+        if (mRecordingLayer >= 0 && mRecordingLayer < kMaxLayers) {
+            applySeamCrossfade(mLayers[static_cast<size_t>(mRecordingLayer)], mLoopLengthFrames);
+            mLayerHasAudio[static_cast<size_t>(mRecordingLayer)] = true;
+            mRecordingLayer = -1;
+        }
+        mPlayPos = 0;
+        mState = State::Stopped;
+    }
+    updateAtomics();
+}
+
 void LoopRecorder::toggleRecord() {
     switch (mState) {
     case State::Empty: {
@@ -102,7 +121,8 @@ void LoopRecorder::toggleRecord() {
         }
         break;
 
-    case State::Playing: {
+    case State::Playing:
+    case State::Stopped: {
         // Strictly record / re-record into the currently selected layer slot.
         int slot = mSelectedLayer;
         mRecordingLayer = slot;
@@ -159,7 +179,7 @@ void LoopRecorder::clear() {
 void LoopRecorder::process(const float* liveIn, float* mixOut, int numFrames, int numChannels, float playbackGain) {
     if (!liveIn || !mixOut || numFrames <= 0 || numChannels <= 0) return;
 
-    if (mState == State::Empty) {
+    if (mState == State::Empty || mState == State::Stopped) {
         return;
     }
 

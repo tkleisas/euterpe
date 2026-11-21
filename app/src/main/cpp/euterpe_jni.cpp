@@ -234,6 +234,11 @@ Java_gr_tkleisas_euterpe_audio_EuterpeEngine_nativeLooperToggleRec(JNIEnv*, jobj
 }
 
 JNIEXPORT void JNICALL
+Java_gr_tkleisas_euterpe_audio_EuterpeEngine_nativeLooperTogglePlayAll(JNIEnv*, jobject) {
+    if (gEngine) gEngine->looperTogglePlayAll();
+}
+
+JNIEXPORT void JNICALL
 Java_gr_tkleisas_euterpe_audio_EuterpeEngine_nativeLooperSelectLayer(JNIEnv*, jobject, jint layerIndex) {
     if (gEngine) gEngine->looperSelectLayer(layerIndex);
 }

@@ -20,6 +20,7 @@ public:
         RecordingFirst = 1,
         Playing = 2,
         Overdubbing = 3,
+        Stopped = 4,
     };
 
     void init(double sampleRate);
@@ -28,10 +29,13 @@ public:
     // Toggle record / overdub into the currently selected layer slot (0..7):
     void toggleRecord();
 
+    // Stop or resume playback of all recorded layers without clearing them.
+    void togglePlayAll();
+
     // Select active layer slot (0..7) for recording/overdubbing.
     void selectLayer(int layerIndex);
 
-    // Mute or unmute a specific layer (0..7).
+    // Stop/start (mute/unmute) a specific layer (0..7).
     void toggleLayerMute(int layerIndex);
 
     // Clear the currently selected layer (or last recorded layer).

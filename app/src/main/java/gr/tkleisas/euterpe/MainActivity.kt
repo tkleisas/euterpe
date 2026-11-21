@@ -131,6 +131,7 @@ private fun EuterpeScreen(viewModel: EuterpeViewModel) {
                 onToggleIdeaLoop = viewModel::toggleIdeaLoop,
                 onToggleBassLoop = viewModel::toggleBassLoop,
                 onLooperToggleRec = viewModel::looperToggleRec,
+                onLooperTogglePlayAll = viewModel::looperTogglePlayAll,
                 onLooperUndo = viewModel::looperUndo,
                 onLooperClear = viewModel::looperClear,
                 onToggleCycleStep = viewModel::toggleCycleStep,
