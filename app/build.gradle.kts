@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -16,6 +18,20 @@ fun gitTagVersionName(): String {
         "0.1.0"
     }
 }
+
+val keystoreProperties = Properties().apply {
+    val candidates = listOf(
+        rootProject.file("keystore.properties"),
+        file("${System.getProperty("user.home")}/.euterpe/keystore.properties"),
+    )
+    candidates.firstOrNull { it.exists() }?.inputStream()?.use { load(it) }
+}
+
+fun signingValue(envName: String, propName: String): String? =
+    System.getenv(envName)?.takeIf { it.isNotBlank() }
+        ?: keystoreProperties.getProperty(propName)?.takeIf { it.isNotBlank() }
+
+val releaseStorePath = signingValue("RELEASE_KEYSTORE_PATH", "storeFile")
 
 android {
     namespace = "gr.tkleisas.euterpe"
@@ -40,10 +56,26 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            if (releaseStorePath != null) {
+                storeFile = file(releaseStorePath)
+                storePassword = signingValue("RELEASE_KEYSTORE_PASSWORD", "storePassword")
+                keyAlias = signingValue("RELEASE_KEY_ALIAS", "keyAlias")
+                keyPassword = signingValue("RELEASE_KEY_PASSWORD", "keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
+            if (releaseStorePath != null) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             isMinifyEnabled = true
             isShrinkResources = true
+            isDebuggable = false
+            isJniDebuggable = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
