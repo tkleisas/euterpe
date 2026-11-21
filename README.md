@@ -1,8 +1,19 @@
-# Euterpe
+<p align="center">
+  <img src="./images/euterpe-logo.svg" width="128" height="128" alt="Euterpe Logo — 4-string golden lyre in front of a 1/4-lit crescent moon" />
+</p>
 
-**Euterpe** is a cross-cultural musical idea generator and tactile Android performance instrument built with **Kotlin + Jetpack Compose**, **Google Oboe (C++17)**, **YAWN DSP**, and an embedded **Lua 5.4** generative engine.
+<h1 align="center">Euterpe</h1>
 
-Inspired by the immediacy of the Telepathic Instruments Orchid (left-hand structural modifiers + 2-octave keyboard), Euterpe expands beyond Western harmony into **Arabic/Levantine Maqams**, **Greek Dromoi**, **Indian Ragas**, **Indonesian Gamelan**, **Exotic/Microtonal scales**, as well as **Techno**, **Metal**, and **Pop**—complete with **synthesized world percussion**, **automatic bassline & melodic idea generation**, and an **8-layer overdub phrase looper**.
+<p align="center">
+  Cross-cultural musical idea generator &amp; tactile Android performance instrument<br/>
+  <strong>Kotlin + Jetpack Compose · Google Oboe (C++17) · YAWN DSP · Embedded Lua 5.4</strong>
+</p>
+
+![Euterpe main performance surface](./images/screenshot-main.png)
+
+![Euterpe Mix, Percussion Kit, FX, Sound & Microtone Tuner](./images/screenshot-lab.png)
+
+Inspired by the immediacy of the Telepathic Instruments Orchid (left-hand structural modifiers + 2-octave keyboard), Euterpe expands beyond Western harmony into **Arabic/Levantine Maqams**, **Greek Dromoi**, **Indian Ragas**, **Indonesian Gamelan**, **Exotic/Microtonal scales**, as well as **Techno**, **Metal**, and **Pop**—complete with **synthesized world percussion**, **automatic bassline & melodic idea generation**, **optional Insert & Master FX**, and **8 selectable per-instrument overdub layers**.
 
 ---
 
@@ -31,7 +42,8 @@ Inspired by the immediacy of the Telepathic Instruments Orchid (left-hand struct
   * **Independent Left-Hand Modifier Bank** (`MODS: ...`) — mix Western chords, Maqam ison/ornaments, Raga tanpura/taan, Gamelan kotekan/ombak, Techno 303 roll, or Metal gallop over *any* scale or rhythm.
   * **Performance Modes:** `Free`, `Strum`, `Arp`, 2-bar `Phrase`, plus `Latch`.
   * **Sandboxed Lua 5.4 Idea & Bassline Generator** (`🎲 IDEA` & `🎲 Exotic Fusion`) + per-degree **Microtonal Cents Tuner**.
-  * **8-Layer Overdub Phrase Looper** (`● REC`, `+L2..+L8`, `↩` Undo, `✕` Clear) with click-free 15 ms crossfades.
+  * **8 Selectable Overdub Layers (`1`–`8`):** Tap any layer button in the top bar to switch to that part (each layer remembers its own sound preset, Tone/Decay/Drive, and Insert FX); tap **`● REC`** to record/overdub into that slot, and **long-press** any recorded layer to mute/unmute it live.
+  * **Optional Insert & Master FX (`FX` tab):** Insert **Tube Drive**, **Stereo Chorus**, and BPM-synced **Ping-Pong Delay** (captured into recorded layers), plus **Master Reverb** and **Glue Compressor** ahead of the safety limiter.
 
 ---
 
