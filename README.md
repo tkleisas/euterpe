@@ -6,7 +6,10 @@
 
 <p align="center">
   Cross-cultural musical idea generator &amp; tactile Android performance instrument<br/>
-  <strong>Kotlin + Jetpack Compose · Google Oboe (C++17) · YAWN DSP · Embedded Lua 5.4</strong>
+  <strong>Kotlin + Jetpack Compose · Google Oboe (C++17) · YAWN DSP · Embedded Lua 5.4</strong><br/>
+  <a href="https://tkleisas.github.io/euterpe/">Project site</a> ·
+  <a href="https://tkleisas.github.io/euterpe/privacy.html">Privacy policy</a> ·
+  <a href="https://github.com/tkleisas/euterpe/releases">Releases</a>
 </p>
 
 ![Euterpe main performance surface](./images/screenshot-main.png)
