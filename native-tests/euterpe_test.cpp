@@ -187,7 +187,8 @@ static void testLoopRecorderLayers() {
     // Middle sample (away from 15ms crossfade) should play back ~0.4
     assert(std::fabs(out[2048 * 2] - 0.4f) < 0.02f);
 
-    // Overdub Layer 2 (+0.3 amplitude)
+    // Overdub Layer 2 (+0.3 amplitude) by explicitly selecting layer 1
+    looper.selectLayer(1);
     looper.toggleRecord();
     assert(looper.state() == LoopRecorder::State::Overdubbing);
     std::vector<float> in2(4096 * 2, 0.3f);
@@ -196,6 +197,7 @@ static void testLoopRecorderLayers() {
     looper.toggleRecord(); // Commit Layer 2
     assert(looper.state() == LoopRecorder::State::Playing);
     assert(looper.layerCount() == 2);
+    assert(looper.recordedMask() == 0b11);
 
     // Playback should sum Layer 1 + Layer 2 (scaled by 1/sqrt(2))
     std::fill(out.begin(), out.end(), 0.0f);
@@ -203,9 +205,10 @@ static void testLoopRecorderLayers() {
     float expected2 = (0.4f + 0.3f) / std::sqrt(2.0f);
     assert(std::fabs(out[2048 * 2] - expected2) < 0.03f);
 
-    // Undo Layer 2 -> back to Layer 1
+    // Undo strictly clears the selected layer (layer 1) -> back to Layer 1 only
     looper.undoLayer();
     assert(looper.layerCount() == 1);
+    assert(looper.recordedMask() == 0b01);
     std::fill(out.begin(), out.end(), 0.0f);
     looper.process(silence.data(), out.data(), 4096, 2);
     assert(std::fabs(out[2048 * 2] - 0.4f) < 0.02f);

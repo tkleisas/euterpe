@@ -105,28 +105,27 @@ fun CycleAndMixerStrip(
             onClick = onToggleBassLoop
         )
 
-        // Multi-Layer Phrase Looper (up to 8 layers): REC -> STOP -> +L2..+L8, plus Undo & Clear
+        // Multi-Layer Phrase Looper: strictly targets the currently selected layer (L1..L8)
         val recColor = Color(0xFFE54B4B)
-        val looperLabel = when (state.looperState) {
-            1 -> "■ REC"
-            2 -> if (state.looperLayers < 8) "+L${state.looperLayers + 1}" else "L8"
-            3 -> "■ L${state.looperLayers + 1}"
-            else -> "● REC"
-        }
+        val selNum = state.selectedLayer + 1
         val looperActive = state.looperState == 1 || state.looperState == 3
+        val selectedHasAudio = (state.recordedLayerMask and (1 shl state.selectedLayer)) != 0
+        val looperLabel = if (looperActive) "■ L$selNum" else "● L$selNum"
         SmallPill(
             text = looperLabel,
-            selected = looperActive || state.looperLayers > 0,
+            selected = looperActive || selectedHasAudio,
             accent = if (looperActive) recColor else Color(0xFF4CD97B),
             onClick = onLooperToggleRec
         )
-        if (state.looperLayers > 0 || looperActive) {
+        if (selectedHasAudio || looperActive) {
             SmallPill(
                 text = "↩",
                 selected = false,
                 accent = accent,
                 onClick = onLooperUndo
             )
+        }
+        if (state.looperLayers > 0) {
             SmallPill(
                 text = "✕",
                 selected = false,

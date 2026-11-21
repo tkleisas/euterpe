@@ -103,18 +103,8 @@ void LoopRecorder::toggleRecord() {
         break;
 
     case State::Playing: {
+        // Strictly record / re-record into the currently selected layer slot.
         int slot = mSelectedLayer;
-        // If selected slot already has audio, auto-advance to first free slot if available;
-        // otherwise re-record into the selected slot cleanly.
-        if (mLayerHasAudio[static_cast<size_t>(slot)]) {
-            for (int i = 0; i < kMaxLayers; ++i) {
-                if (!mLayerHasAudio[static_cast<size_t>(i)]) {
-                    slot = i;
-                    mSelectedLayer = i;
-                    break;
-                }
-            }
-        }
         mRecordingLayer = slot;
         mLayerHasAudio[static_cast<size_t>(slot)] = false;
         mLayerMuted[static_cast<size_t>(slot)] = false;
@@ -149,19 +139,9 @@ void LoopRecorder::undoLayer() {
         updateAtomics();
         return;
     }
-    // Clear selected layer if it has audio; otherwise clear the highest-index recorded layer
-    if (mLayerHasAudio[static_cast<size_t>(mSelectedLayer)]) {
-        mLayerHasAudio[static_cast<size_t>(mSelectedLayer)] = false;
-        mLayerMuted[static_cast<size_t>(mSelectedLayer)] = false;
-    } else {
-        for (int i = kMaxLayers - 1; i >= 0; --i) {
-            if (mLayerHasAudio[static_cast<size_t>(i)]) {
-                mLayerHasAudio[static_cast<size_t>(i)] = false;
-                mLayerMuted[static_cast<size_t>(i)] = false;
-                break;
-            }
-        }
-    }
+    // Strictly clear the currently selected layer
+    mLayerHasAudio[static_cast<size_t>(mSelectedLayer)] = false;
+    mLayerMuted[static_cast<size_t>(mSelectedLayer)] = false;
     bool any = false;
     for (bool b : mLayerHasAudio) if (b) any = true;
     if (!any) {
