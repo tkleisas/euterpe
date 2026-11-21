@@ -58,7 +58,11 @@ bool EuterpeEngine::init(const std::string& scriptsDir) {
     // Dedicated resonant Acid/Sub Bass synth for generated basslines
     mBassSynth = std::make_unique<yawn::instruments::SubtractiveSynth>();
 
+    mInsertDist = std::make_unique<yawn::effects::Distortion>();
+    mInsertChorus = std::make_unique<yawn::effects::Chorus>();
+    mInsertDelay = std::make_unique<yawn::effects::Delay>();
     mReverb = std::make_unique<yawn::effects::Reverb>();
+    mMasterComp = std::make_unique<yawn::effects::Compressor>();
     mLimiter = std::make_unique<yawn::effects::Limiter>();
 
     mSampleRate = 48000.0;
@@ -88,10 +92,35 @@ bool EuterpeEngine::init(const std::string& scriptsDir) {
     mBassSynth->setParameter(SUB::kFiltDecay, 0.16f);
     mBassSynth->setParameter(SUB::kFiltSustain, 0.18f);
 
+    mInsertDist->init(mSampleRate, kMaxFrames);
+    mInsertDist->setParameter(yawn::effects::Distortion::kType, 2.0f); // Tube
+    mInsertDist->setParameter(yawn::effects::Distortion::kDrive, 0.45f);
+    mInsertDist->setParameter(yawn::effects::Distortion::kTone, 0.65f);
+    mInsertDist->setParameter(yawn::effects::Distortion::kWetDry, 0.55f);
+
+    mInsertChorus->init(mSampleRate, kMaxFrames);
+    mInsertChorus->setParameter(yawn::effects::Chorus::kRate, 1.1f);
+    mInsertChorus->setParameter(yawn::effects::Chorus::kDepth, 0.45f);
+    mInsertChorus->setParameter(yawn::effects::Chorus::kWetDry, 0.42f);
+
+    mInsertDelay->init(mSampleRate, kMaxFrames);
+    mInsertDelay->setBPM(104.0);
+    mInsertDelay->setParameter(yawn::effects::Delay::kTimeMs, 320.0f);
+    mInsertDelay->setParameter(yawn::effects::Delay::kFeedback, 0.42f);
+    mInsertDelay->setParameter(yawn::effects::Delay::kWetDry, 0.30f);
+    mInsertDelay->setParameter(yawn::effects::Delay::kPingPong, 1.0f);
+
     mReverb->init(mSampleRate, kMaxFrames);
     mReverb->setParameter(0, 0.62f); // room size
     mReverb->setParameter(1, 0.45f); // damping
     mReverb->setParameter(2, mReverbMix); // wet/dry
+
+    mMasterComp->init(mSampleRate, kMaxFrames);
+    mMasterComp->setParameter(yawn::effects::Compressor::kThreshold, -14.0f);
+    mMasterComp->setParameter(yawn::effects::Compressor::kRatio, 3.2f);
+    mMasterComp->setParameter(yawn::effects::Compressor::kAttack, 12.0f);
+    mMasterComp->setParameter(yawn::effects::Compressor::kRelease, 110.0f);
+    mMasterComp->setParameter(yawn::effects::Compressor::kMakeupGain, 2.5f);
 
     mLimiter->init(mSampleRate, kMaxFrames);
 
@@ -453,7 +482,12 @@ bool EuterpeEngine::openStream() {
             configureInstrumentDefaults(i);
         }
         mIdeaSynth->init(mSampleRate, kMaxFrames);
+        mBassSynth->init(mSampleRate, kMaxFrames);
+        mInsertDist->init(mSampleRate, kMaxFrames);
+        mInsertChorus->init(mSampleRate, kMaxFrames);
+        mInsertDelay->init(mSampleRate, kMaxFrames);
         mReverb->init(mSampleRate, kMaxFrames);
+        mMasterComp->init(mSampleRate, kMaxFrames);
         mLimiter->init(mSampleRate, kMaxFrames);
         mPerf.init(mSampleRate);
         mSequencer.init(mSampleRate);
@@ -758,6 +792,24 @@ void EuterpeEngine::setReverbMix(float mix) {
     mQueue.push(ev);
 }
 
+void EuterpeEngine::setInsertFx(int fxId, bool enabled, float amount) {
+    EngineEvent ev;
+    ev.type = EngineEvent::Type::SetInsertFx;
+    ev.intParam1 = fxId;
+    ev.intParam2 = enabled ? 1 : 0;
+    ev.floatParam1 = std::clamp(amount, 0.0f, 1.0f);
+    mQueue.push(ev);
+}
+
+void EuterpeEngine::setMasterFx(int fxId, bool enabled, float amount) {
+    EngineEvent ev;
+    ev.type = EngineEvent::Type::SetMasterFx;
+    ev.intParam1 = fxId;
+    ev.intParam2 = enabled ? 1 : 0;
+    ev.floatParam1 = std::clamp(amount, 0.0f, 1.0f);
+    mQueue.push(ev);
+}
+
 void EuterpeEngine::setMasterVolume(float volume) {
     EngineEvent ev;
     ev.type = EngineEvent::Type::SetMasterVolume;
@@ -902,6 +954,12 @@ void EuterpeEngine::processEvents(yawn::midi::MidiBuffer& midiOut) {
         case EngineEvent::Type::SetBpm:
             mSequencer.setBpm(ev.floatParam1);
             mPerf.setBpm(ev.floatParam1);
+            if (mInsertDelay) {
+                mInsertDelay->setBPM(ev.floatParam1);
+                // Sync delay time to dotted-eighth note for musical stereo groove
+                float dotted8Ms = static_cast<float>((60000.0 / std::max(40.0f, ev.floatParam1)) * 0.75);
+                mInsertDelay->setParameter(yawn::effects::Delay::kTimeMs, std::clamp(dotted8Ms, 80.0f, 950.0f));
+            }
             break;
         case EngineEvent::Type::SetTransportPlaying:
             mSequencer.setPlaying(ev.intParam1 != 0);
@@ -962,6 +1020,40 @@ void EuterpeEngine::processEvents(yawn::midi::MidiBuffer& midiOut) {
         case EngineEvent::Type::LooperClear:
             mLooper.clear();
             break;
+        case EngineEvent::Type::SetInsertFx: {
+            bool on = (ev.intParam2 != 0);
+            float amt = ev.floatParam1;
+            if (ev.intParam1 == 0 && mInsertDist) {
+                mInsertDistOn = on;
+                mInsertDist->setParameter(yawn::effects::Distortion::kDrive, 0.15f + amt * 0.85f);
+                mInsertDist->setParameter(yawn::effects::Distortion::kWetDry, 0.25f + amt * 0.75f);
+            } else if (ev.intParam1 == 1 && mInsertChorus) {
+                mInsertChorusOn = on;
+                mInsertChorus->setParameter(yawn::effects::Chorus::kDepth, 0.20f + amt * 0.70f);
+                mInsertChorus->setParameter(yawn::effects::Chorus::kWetDry, 0.15f + amt * 0.65f);
+            } else if (ev.intParam1 == 2 && mInsertDelay) {
+                mInsertDelayOn = on;
+                mInsertDelay->setParameter(yawn::effects::Delay::kFeedback, 0.20f + amt * 0.58f);
+                mInsertDelay->setParameter(yawn::effects::Delay::kWetDry, 0.10f + amt * 0.55f);
+            }
+            break;
+        }
+        case EngineEvent::Type::SetMasterFx: {
+            bool on = (ev.intParam2 != 0);
+            float amt = ev.floatParam1;
+            if (ev.intParam1 == 0 && mReverb) {
+                mMasterReverbOn = on;
+                mReverbMix = amt * 0.85f;
+                mReverb->setParameter(yawn::effects::Reverb::kRoomSize, 0.35f + amt * 0.55f);
+                mReverb->setParameter(yawn::effects::Reverb::kWetDry, mReverbMix);
+            } else if (ev.intParam1 == 1 && mMasterComp) {
+                mMasterCompOn = on;
+                mMasterComp->setParameter(yawn::effects::Compressor::kThreshold, -6.0f - amt * 20.0f);
+                mMasterComp->setParameter(yawn::effects::Compressor::kRatio, 2.0f + amt * 4.5f);
+                mMasterComp->setParameter(yawn::effects::Compressor::kMakeupGain, amt * 5.0f);
+            }
+            break;
+        }
         default:
             break;
         }
@@ -1066,9 +1158,15 @@ oboe::DataCallbackResult EuterpeEngine::onAudioReady(oboe::AudioStream* stream,
         mBassSynth->process(mBassBuf.data(), frames, 2, bassMidi);
     }
 
-    // 4. Warm room Reverb on melodic + drone + idea bus
-    if (mReverb && mReverbMix > 0.005f) {
-        mReverb->process(mMelodicBuf.data(), frames, 2);
+    // 4. Optional Insert FX on live melodic bus (before Looper so layers capture FX!)
+    if (mInsertDistOn && mInsertDist) {
+        mInsertDist->process(mMelodicBuf.data(), frames, 2);
+    }
+    if (mInsertChorusOn && mInsertChorus) {
+        mInsertChorus->process(mMelodicBuf.data(), frames, 2);
+    }
+    if (mInsertDelayOn && mInsertDelay) {
+        mInsertDelay->process(mMelodicBuf.data(), frames, 2);
     }
 
     // 4b. Multi-layer phrase looper: records live melodic bus & adds playback layers
@@ -1078,11 +1176,11 @@ oboe::DataCallbackResult EuterpeEngine::onAudioReady(oboe::AudioStream* stream,
         mMelodicBuf[static_cast<size_t>(i)] += loopPlayBuf[static_cast<size_t>(i)];
     }
 
-    // 5. Render synthesized World Percussion (tight, punchy, mostly dry)
+    // 5. Render synthesized World Percussion (tight, punchy)
     std::fill_n(mPercBuf.data(), frames * 2, 0.0f);
     mPerc.process(mPercBuf.data(), frames, 2, mPercLevel);
 
-    // 6. Sum to output + master volume + safety limiter
+    // 6. Sum to master bus + Optional Master FX (Reverb -> Glue Compressor -> Safety Limiter)
     for (int i = 0; i < frames; ++i) {
         float l = (mMelodicBuf[static_cast<size_t>(i * 2)] +
                    mBassBuf[static_cast<size_t>(i * 2)] * mBassLevel +
@@ -1098,8 +1196,16 @@ oboe::DataCallbackResult EuterpeEngine::onAudioReady(oboe::AudioStream* stream,
         }
     }
 
-    if (mLimiter && channels == 2) {
-        mLimiter->process(out, frames, 2);
+    if (channels == 2) {
+        if (mMasterReverbOn && mReverb && mReverbMix > 0.005f) {
+            mReverb->process(out, frames, 2);
+        }
+        if (mMasterCompOn && mMasterComp) {
+            mMasterComp->process(out, frames, 2);
+        }
+        if (mLimiter) {
+            mLimiter->process(out, frames, 2);
+        }
     }
 
     return oboe::DataCallbackResult::Continue;

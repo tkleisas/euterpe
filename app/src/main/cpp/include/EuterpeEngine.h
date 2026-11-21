@@ -15,6 +15,10 @@
 #include "LuaIdeaHost.h"
 #include "PerformanceLayer.h"
 #include "WorldPercussionSynth.h"
+#include "effects/Chorus.h"
+#include "effects/Compressor.h"
+#include "effects/Delay.h"
+#include "effects/Distortion.h"
 #include "effects/Limiter.h"
 #include "effects/Reverb.h"
 #include "instruments/Instrument.h"
@@ -68,6 +72,8 @@ public:
     void setIdeaLevel(float level);
     void setBassLevel(float level);
     void setReverbMix(float mix);
+    void setInsertFx(int fxId, bool enabled, float amount);
+    void setMasterFx(int fxId, bool enabled, float amount);
     void setMasterVolume(float volume);
     void triggerPercussion(int voiceId, float velocity);
 
@@ -118,8 +124,18 @@ private:
     std::array<std::unique_ptr<yawn::instruments::Instrument>, kInstrumentCount> mInstruments;
     std::unique_ptr<yawn::instruments::Instrument> mIdeaSynth;
     std::unique_ptr<yawn::instruments::Instrument> mBassSynth;
+    std::unique_ptr<yawn::effects::Distortion> mInsertDist;
+    std::unique_ptr<yawn::effects::Chorus> mInsertChorus;
+    std::unique_ptr<yawn::effects::Delay> mInsertDelay;
     std::unique_ptr<yawn::effects::Reverb> mReverb;
+    std::unique_ptr<yawn::effects::Compressor> mMasterComp;
     std::unique_ptr<yawn::effects::Limiter> mLimiter;
+
+    bool mInsertDistOn = false;
+    bool mInsertChorusOn = false;
+    bool mInsertDelayOn = false;
+    bool mMasterReverbOn = true;
+    bool mMasterCompOn = false;
 
     int mActiveInstrument = 0;
     int mActivePreset = 0;

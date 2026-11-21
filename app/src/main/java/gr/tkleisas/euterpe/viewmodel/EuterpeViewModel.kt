@@ -51,6 +51,16 @@ data class EuterpeUiState(
     val synthDecay: Float = 0.68f,
     val synthDrive: Float = 0.15f,
     val reverbMix: Float = 0.24f,
+    val insertDistOn: Boolean = false,
+    val insertDistAmt: Float = 0.45f,
+    val insertChorusOn: Boolean = false,
+    val insertChorusAmt: Float = 0.45f,
+    val insertDelayOn: Boolean = false,
+    val insertDelayAmt: Float = 0.40f,
+    val masterReverbOn: Boolean = true,
+    val masterReverbAmt: Float = 0.28f,
+    val masterCompOn: Boolean = false,
+    val masterCompAmt: Float = 0.45f,
     val looperState: Int = 0, // 0=Empty, 1=Rec1, 2=Playing, 3=Overdub
     val looperLayers: Int = 0,
     val showMixerPopup: Boolean = false,
@@ -131,7 +141,11 @@ class EuterpeViewModel : ViewModel() {
         engine.setPercLevel(s.percLevel)
         engine.setIdeaLevel(s.ideaLevel)
         engine.setBassLevel(s.bassLevel)
-        engine.setReverbMix(s.reverbMix)
+        engine.setInsertFx(0, s.insertDistOn, s.insertDistAmt)
+        engine.setInsertFx(1, s.insertChorusOn, s.insertChorusAmt)
+        engine.setInsertFx(2, s.insertDelayOn, s.insertDelayAmt)
+        engine.setMasterFx(0, s.masterReverbOn, s.masterReverbAmt)
+        engine.setMasterFx(1, s.masterCompOn, s.masterCompAmt)
         engine.setIdeaLoopEnabled(s.isIdeaLoopEnabled)
         engine.setBassLoopEnabled(s.isBassLoopEnabled)
         engine.setTransportPlaying(s.isPlaying)
@@ -464,8 +478,34 @@ class EuterpeViewModel : ViewModel() {
     }
 
     fun setReverbMix(mix: Float) {
-        _uiState.update { it.copy(reverbMix = mix) }
-        if (engineInitialized) engine.setReverbMix(mix)
+        val amt = (mix / 0.85f).coerceIn(0f, 1f)
+        _uiState.update { it.copy(reverbMix = mix, masterReverbAmt = amt) }
+        if (engineInitialized) engine.setMasterFx(0, _uiState.value.masterReverbOn, amt)
+    }
+
+    fun setInsertFx(fxId: Int, enabled: Boolean, amount: Float) {
+        val a = amount.coerceIn(0f, 1f)
+        _uiState.update {
+            when (fxId) {
+                0 -> it.copy(insertDistOn = enabled, insertDistAmt = a)
+                1 -> it.copy(insertChorusOn = enabled, insertChorusAmt = a)
+                2 -> it.copy(insertDelayOn = enabled, insertDelayAmt = a)
+                else -> it
+            }
+        }
+        if (engineInitialized) engine.setInsertFx(fxId, enabled, a)
+    }
+
+    fun setMasterFx(fxId: Int, enabled: Boolean, amount: Float) {
+        val a = amount.coerceIn(0f, 1f)
+        _uiState.update {
+            when (fxId) {
+                0 -> it.copy(masterReverbOn = enabled, masterReverbAmt = a, reverbMix = a * 0.85f)
+                1 -> it.copy(masterCompOn = enabled, masterCompAmt = a)
+                else -> it
+            }
+        }
+        if (engineInitialized) engine.setMasterFx(fxId, enabled, a)
     }
 
     fun noteOn(pointerId: Int, midiNote: Int, cents: Float, velocity: Float) {

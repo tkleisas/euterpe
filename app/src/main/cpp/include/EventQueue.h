@@ -37,6 +37,8 @@ struct EngineEvent {
         LooperToggleRec,
         LooperUndo,
         LooperClear,
+        SetInsertFx,
+        SetMasterFx,
     };
 
     Type type = Type::NoteOn;

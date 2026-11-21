@@ -78,6 +78,8 @@ class EuterpeEngine {
     fun setIdeaLevel(level: Float) = nativeSetIdeaLevel(level)
     fun setBassLevel(level: Float) = nativeSetBassLevel(level)
     fun setReverbMix(mix: Float) = nativeSetReverbMix(mix)
+    fun setInsertFx(fxId: Int, enabled: Boolean, amount: Float) = nativeSetInsertFx(fxId, enabled, amount)
+    fun setMasterFx(fxId: Int, enabled: Boolean, amount: Float) = nativeSetMasterFx(fxId, enabled, amount)
     fun setMasterVolume(vol: Float) = nativeSetMasterVolume(vol)
     fun triggerPercussion(voiceId: Int, velocity: Float) = nativeTriggerPercussion(voiceId, velocity)
 
@@ -123,6 +125,8 @@ class EuterpeEngine {
     private external fun nativeSetIdeaLevel(level: Float)
     private external fun nativeSetBassLevel(level: Float)
     private external fun nativeSetReverbMix(mix: Float)
+    private external fun nativeSetInsertFx(fxId: Int, enabled: Boolean, amount: Float)
+    private external fun nativeSetMasterFx(fxId: Int, enabled: Boolean, amount: Float)
     private external fun nativeSetMasterVolume(vol: Float)
     private external fun nativeTriggerPercussion(voiceId: Int, velocity: Float)
     private external fun nativeCurrentStep(): Int

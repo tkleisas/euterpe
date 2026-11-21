@@ -196,6 +196,18 @@ Java_gr_tkleisas_euterpe_audio_EuterpeEngine_nativeSetReverbMix(JNIEnv*, jobject
 }
 
 JNIEXPORT void JNICALL
+Java_gr_tkleisas_euterpe_audio_EuterpeEngine_nativeSetInsertFx(JNIEnv*, jobject,
+                                                               jint fxId, jboolean enabled, jfloat amount) {
+    if (gEngine) gEngine->setInsertFx(fxId, enabled == JNI_TRUE, amount);
+}
+
+JNIEXPORT void JNICALL
+Java_gr_tkleisas_euterpe_audio_EuterpeEngine_nativeSetMasterFx(JNIEnv*, jobject,
+                                                               jint fxId, jboolean enabled, jfloat amount) {
+    if (gEngine) gEngine->setMasterFx(fxId, enabled == JNI_TRUE, amount);
+}
+
+JNIEXPORT void JNICALL
 Java_gr_tkleisas_euterpe_audio_EuterpeEngine_nativeSetMasterVolume(JNIEnv*, jobject, jfloat vol) {
     if (gEngine) gEngine->setMasterVolume(vol);
 }

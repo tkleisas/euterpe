@@ -26,6 +26,9 @@ add_library(yawn_dsp STATIC
     yawn_dsp/src/instruments/PolivoksSynth.cpp
     yawn_dsp/src/effects/Reverb.cpp
     yawn_dsp/src/effects/Delay.cpp
+    yawn_dsp/src/effects/Chorus.cpp
+    yawn_dsp/src/effects/Distortion.cpp
+    yawn_dsp/src/effects/Compressor.cpp
     yawn_dsp/src/effects/Limiter.cpp
 )
 set_target_properties(yawn_dsp PROPERTIES

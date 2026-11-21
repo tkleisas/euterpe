@@ -175,6 +175,8 @@ private fun EuterpeScreen(viewModel: EuterpeViewModel) {
                 onIdeaChange = viewModel::setIdeaLevel,
                 onBassChange = viewModel::setBassLevel,
                 onReverbChange = viewModel::setReverbMix,
+                onSetInsertFx = viewModel::setInsertFx,
+                onSetMasterFx = viewModel::setMasterFx,
                 onToneChange = viewModel::setSynthTone,
                 onDecayChange = viewModel::setSynthDecay,
                 onDriveChange = viewModel::setSynthDrive,
@@ -202,6 +204,8 @@ private fun LabOverlayCard(
     onIdeaChange: (Float) -> Unit,
     onBassChange: (Float) -> Unit,
     onReverbChange: (Float) -> Unit,
+    onSetInsertFx: (Int, Boolean, Float) -> Unit,
+    onSetMasterFx: (Int, Boolean, Float) -> Unit,
     onToneChange: (Float) -> Unit,
     onDecayChange: (Float) -> Unit,
     onDriveChange: (Float) -> Unit,
@@ -212,8 +216,8 @@ private fun LabOverlayCard(
     onResetTuning: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var activeTab by remember { mutableIntStateOf(0) } // 0 = Mix/Kit, 1 = Sound/Idea, 2 = Microtune
-    val tabs = listOf("MIX & KIT", "SOUND", "TUNE")
+    var activeTab by remember { mutableIntStateOf(0) } // 0 = Mix/Kit, 1 = FX, 2 = Sound, 3 = Tune
+    val tabs = listOf("MIX", "FX", "SOUND", "TUNE")
 
     Column(
         modifier = modifier
@@ -316,6 +320,52 @@ private fun LabOverlayCard(
                 }
 
                 1 -> {
+                    Text("INSERT FX (INSTRUMENT)", color = EuterpeColors.TextMuted, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                    FxSlotRow(
+                        name = "Tube Drive",
+                        enabled = state.insertDistOn,
+                        amount = state.insertDistAmt,
+                        accent = accent,
+                        onToggle = { onSetInsertFx(0, !state.insertDistOn, state.insertDistAmt) },
+                        onAmount = { onSetInsertFx(0, state.insertDistOn, it) }
+                    )
+                    FxSlotRow(
+                        name = "Stereo Chorus",
+                        enabled = state.insertChorusOn,
+                        amount = state.insertChorusAmt,
+                        accent = accent,
+                        onToggle = { onSetInsertFx(1, !state.insertChorusOn, state.insertChorusAmt) },
+                        onAmount = { onSetInsertFx(1, state.insertChorusOn, it) }
+                    )
+                    FxSlotRow(
+                        name = "Ping-Pong Delay",
+                        enabled = state.insertDelayOn,
+                        amount = state.insertDelayAmt,
+                        accent = accent,
+                        onToggle = { onSetInsertFx(2, !state.insertDelayOn, state.insertDelayAmt) },
+                        onAmount = { onSetInsertFx(2, state.insertDelayOn, it) }
+                    )
+
+                    Text("MASTER FX (FULL MIX)", color = EuterpeColors.TextMuted, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                    FxSlotRow(
+                        name = "Master Reverb",
+                        enabled = state.masterReverbOn,
+                        amount = state.masterReverbAmt,
+                        accent = accent,
+                        onToggle = { onSetMasterFx(0, !state.masterReverbOn, state.masterReverbAmt) },
+                        onAmount = { onSetMasterFx(0, state.masterReverbOn, it) }
+                    )
+                    FxSlotRow(
+                        name = "Glue Compressor",
+                        enabled = state.masterCompOn,
+                        amount = state.masterCompAmt,
+                        accent = accent,
+                        onToggle = { onSetMasterFx(1, !state.masterCompOn, state.masterCompAmt) },
+                        onAmount = { onSetMasterFx(1, state.masterCompOn, it) }
+                    )
+                }
+
+                2 -> {
                     Text("SOUND MACROS", color = EuterpeColors.TextMuted, fontSize = 9.sp, fontWeight = FontWeight.Bold)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -352,7 +402,7 @@ private fun LabOverlayCard(
                     }
                 }
 
-                2 -> {
+                3 -> {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -421,6 +471,57 @@ private fun LabOverlayCard(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun FxSlotRow(
+    name: String,
+    enabled: Boolean,
+    amount: Float,
+    accent: Color,
+    onToggle: () -> Unit,
+    onAmount: (Float) -> Unit,
+) {
+    Column {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(if (enabled) accent.copy(alpha = 0.25f) else EuterpeColors.SurfaceElevated)
+                        .border(1.dp, if (enabled) accent else EuterpeColors.BorderSubtle, RoundedCornerShape(4.dp))
+                        .clickable { onToggle() }
+                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                ) {
+                    Text(
+                        text = if (enabled) "ON" else "OFF",
+                        color = if (enabled) accent else EuterpeColors.TextMuted,
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                Text(name, color = EuterpeColors.TextPrimary, fontSize = 11.sp)
+            }
+            Text("${(amount * 100f).roundToInt()}%", color = EuterpeColors.TextMuted, fontSize = 11.sp)
+        }
+        Slider(
+            value = amount.coerceIn(0f, 1f),
+            onValueChange = onAmount,
+            modifier = Modifier.height(22.dp),
+            colors = SliderDefaults.colors(
+                thumbColor = if (enabled) accent else EuterpeColors.TextMuted,
+                activeTrackColor = if (enabled) accent else EuterpeColors.TextMuted,
+                inactiveTrackColor = EuterpeColors.SurfaceElevated
+            )
+        )
     }
 }
 
