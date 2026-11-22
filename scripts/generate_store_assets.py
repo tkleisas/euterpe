@@ -12,7 +12,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 ROOT = Path(__file__).resolve().parent.parent
 IMAGES = ROOT / "images"
-STORE = ROOT / "store"
+STORE = ROOT / "playstore"
 
 BG = (14, 17, 26)
 SURFACE = (22, 27, 41)
