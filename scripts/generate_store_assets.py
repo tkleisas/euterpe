@@ -188,30 +188,30 @@ def main():
     (STORE / "tablet-7").mkdir(parents=True, exist_ok=True)
     (STORE / "tablet-10").mkdir(parents=True, exist_ok=True)
 
-    draw_euterpe_icon(512).save(STORE / "icon-512.png")
-    draw_feature_graphic().save(STORE / "feature-graphic-1024x500.png")
+    draw_euterpe_icon(512).save(STORE / "euterpe-icon-512x512.png")
+    draw_feature_graphic().save(STORE / "euterpe-feature-graphic-1024x500.png")
 
     shots = [
         (
-            "01-microtonal-performance-surface.png",
+            "01-performance-surface.png",
             IMAGES / "screenshot-main.png",
             "Play Across Musical Cultures",
             "2-octave microtonal keyboard · 8 selectable layers · Maqams, Greek Dromoi, Ragas, Gamelan, Techno, Metal & Pop",
         ),
         (
-            "02-mix-percussion-kits-exotic-fusion.png",
+            "02-mix-percussion-fusion.png",
             IMAGES / "screenshot-lab.png",
             "Swappable World Percussion & Exotic Fusion",
             "20 synthesized percussion voices · 6 swappable kits · asymmetric meters (7/8, 9/8, 10/8, 11/8, 13/8, 16-beat Tala)",
         ),
         (
-            "03-insert-and-master-fx.png",
+            "03-insert-master-fx.png",
             IMAGES / "screenshot-fx.png",
             "Insert & Master FX Chain",
             "Tube Drive, Stereo Chorus & BPM-synced Ping-Pong Delay per layer · Master Reverb & Glue Compressor",
         ),
         (
-            "04-sound-macros-and-shaping.png",
+            "04-sound-macros-shaping.png",
             IMAGES / "screenshot-sound.png",
             "21 YAWN DSP Presets & 1-Tap Sound Macros",
             "Karplus-Strong, FM, Electric Piano, Wavetable, Subtractive TB-303 & Polivoks 1982 · WARM / ACID / GRIT / DREAM",
@@ -219,9 +219,9 @@ def main():
     ]
 
     for fname, src, title, sub in shots:
-        make_framed_shot(src, (1920, 1080), title, sub).save(STORE / "phone" / fname)
-        make_framed_shot(src, (1920, 1200), title, sub).save(STORE / "tablet-7" / fname)
-        make_framed_shot(src, (2560, 1600), title, sub).save(STORE / "tablet-10" / fname)
+        make_framed_shot(src, (1920, 1080), title, sub).save(STORE / "phone" / f"euterpe-phone-1920x1080-{fname}")
+        make_framed_shot(src, (1920, 1200), title, sub).save(STORE / "tablet-7" / f"euterpe-tablet7-1920x1200-{fname}")
+        make_framed_shot(src, (2560, 1600), title, sub).save(STORE / "tablet-10" / f"euterpe-tablet10-2560x1600-{fname}")
 
     print("Generated all Play Store assets under store/")
 
